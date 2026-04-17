@@ -1,0 +1,533 @@
+ATACharts - Beginner Guide for Using the Library in Processing
+===============================================================
+
+This guide explains how to use the ATACharts libraries in Processing from the beginning.
+It assumes you have no prior knowledge of Java libraries, Processing libraries, or CSV-based chart setup.
+
+1. What this library is
+-----------------------
+
+ATACharts is a custom Processing chart library that provides chart classes such as:
+
+- BarChart
+- LineChart
+- ScatterPlot
+
+These classes let you create charts from CSV data without manually drawing every axis, label, bar, line, or point yourself.
+
+2. What you need before starting
+--------------------------------
+
+You need:
+
+1. Processing installed on your computer
+2. The ATACharts library files
+3. A Processing sketch
+4. A CSV file containing your data
+
+If Processing is not installed, download it from the official Processing website and open it once to confirm it works.
+
+3. Where Processing libraries go
+--------------------------------
+
+Processing uses a sketchbook folder on your computer.
+
+Inside that sketchbook folder there is usually a folder named:
+
+libraries
+
+A typical Windows path looks like this:
+
+C:\Users\YOUR_NAME\Documents\Processing\libraries\
+
+Your custom library must be placed inside this libraries folder.
+
+4. How to install the ATACharts library
+---------------------------------------
+
+Once the library has been packaged properly, it should look something like this:
+
+AtaCharts
+  library
+    AtaCharts.jar
+  examples
+  reference
+  library.properties
+
+To install it manually:
+
+1. Close Processing
+2. Open your Processing sketchbook folder
+3. Open the libraries folder
+4. Copy the whole AtaCharts folder into libraries
+5. Re-open Processing
+
+Important:
+Do not copy only the .jar file by itself.
+Processing expects the whole library folder structure.
+
+After installation, your folder should look something like this:
+
+Processing
+  libraries
+    AtaCharts
+      library
+        AtaCharts.jar
+
+5. How to check whether the library is installed correctly
+----------------------------------------------------------
+
+Open Processing.
+
+Create a new sketch and type:
+
+import com.ata.charts.*;
+
+If the library is installed correctly, Processing should accept the import.
+If Processing says the package does not exist, the library has not been installed correctly.
+
+6. How a basic Processing sketch works
+--------------------------------------
+
+A Processing sketch usually has:
+
+- setup() -> runs once at the start
+- draw() -> runs repeatedly every frame
+
+For charts, the general workflow is:
+
+1. Create the window in setup()
+2. Load a CSV file
+3. Create the chart object
+4. Configure the chart
+5. In draw(), update hover and draw the chart
+6. Pass mouse and keyboard input into the chart
+
+7. Where the CSV file should go
+-------------------------------
+
+Your CSV file should be inside the sketch folder.
+
+The safest structure is:
+
+MySketch
+  MySketch.pde
+  data
+    mydata.csv
+
+Then in Processing you load it like this:
+
+loadTable("data/mydata.csv", "header");
+
+If you do not use a data subfolder, then place the CSV next to the .pde file and load it like this:
+
+loadTable("mydata.csv", "header");
+
+8. Example: basic Bar Chart
+---------------------------
+
+This is a simple example of using the bar chart.
+
+Code:
+
+import com.ata.charts.*;
+import processing.data.Table;
+
+BarChart chart;
+
+void setup() {
+  size(1200, 800, P2D);
+
+  Table t = loadTable("data/data2.csv", "header");
+  if (t == null) {
+    println("CSV file not found.");
+    exit();
+  }
+
+  String[] cols = {"2023", "2024", "2025"};
+
+  chart = new BarChart(this)
+    .setDataFromTable(t, "Category", cols)
+    .setTitle("Sales by Year")
+    .setXLabel("Category")
+    .setYLabel("Units")
+    .enableDefaultAnalyticalUI()
+    .restartAnimation();
+}
+
+void draw() {
+  background(255);
+  chart.updateHover(mouseX, mouseY);
+  chart.draw(0, 0, width, height);
+}
+
+void mousePressed() {
+  chart.handleMousePressed(mouseX, mouseY);
+}
+
+void keyPressed() {
+  if (keyCode == ESC) {
+    key = 0;
+  }
+  chart.handleKeyPressed(key, keyCode);
+}
+
+What this does:
+
+- imports the chart library
+- loads a CSV file
+- uses Category as the label column
+- uses 2023, 2024, and 2025 as bar series
+- draws the chart to fill the sketch window
+- enables hover, mouse, and keyboard interaction
+
+9. Example: basic Scatter Plot
+------------------------------
+
+Code:
+
+import com.ata.charts.*;
+import processing.data.Table;
+
+ScatterPlot chart;
+
+void setup() {
+  size(1200, 800, P2D);
+
+  Table t = loadTable("data/gapminder_scatter.csv", "header");
+  if (t == null) {
+    println("CSV file not found.");
+    exit();
+  }
+
+  chart = new ScatterPlot(this)
+    .setDataFromTable(
+      t,
+      "Country",
+      "GDPPerCapita",
+      "LifeExpectancy",
+      null,
+      "Continent"
+    )
+    .setTitle("GDP per Capita vs Life Expectancy")
+    .setXLabel("GDP per Capita")
+    .setYLabel("Life Expectancy")
+    .setUseBubbleSizes(false)
+    .enableDefaultAnalyticalUI()
+    .restartAnimation();
+}
+
+void draw() {
+  background(255);
+  chart.updateHover(mouseX, mouseY);
+  chart.draw(0, 0, width, height);
+}
+
+void mousePressed() {
+  chart.handleMousePressed(mouseX, mouseY);
+}
+
+void keyPressed() {
+  if (keyCode == ESC) {
+    key = 0;
+  }
+  chart.handleKeyPressed(key, keyCode);
+}
+
+What this does:
+
+- loads a scatter-plot dataset
+- uses Country as the point label
+- uses GDPPerCapita for the x-axis
+- uses LifeExpectancy for the y-axis
+- disables bubble sizing so the chart behaves like a standard scatter plot
+- groups points by Continent for color
+
+10. Example: basic Line Chart
+-----------------------------
+
+The exact line-chart setup depends on the line-chart version you are using, but the general structure is the same:
+
+import com.ata.charts.*;
+import processing.data.Table;
+
+LineChart chart;
+
+void setup() {
+  size(1200, 800, P2D);
+
+  Table t = loadTable("data/data2.csv", "header");
+  if (t == null) {
+    println("CSV file not found.");
+    exit();
+  }
+
+  String[] cols = {"2023", "2024", "2025"};
+
+  chart = new LineChart(this)
+    .setDataFromTable(t, "Category", cols)
+    .setTitle("Line Chart Example")
+    .setXLabel("Category")
+    .setYLabel("Units")
+    .enableDefaultAnalyticalUI()
+    .restartAnimation();
+}
+
+void draw() {
+  background(255);
+  chart.updateHover(mouseX, mouseY);
+  chart.draw(0, 0, width, height);
+}
+
+void mousePressed() {
+  chart.handleMousePressed(mouseX, mouseY);
+}
+
+void keyPressed() {
+  if (keyCode == ESC) {
+    key = 0;
+  }
+  chart.handleKeyPressed(key, keyCode);
+}
+
+11. What your CSV should look like
+----------------------------------
+
+For BarChart and LineChart, a common CSV format is:
+
+Category,2023,2024,2025
+Apples,10,12,14
+Bananas,20,25,28
+Cherries,15,14,18
+
+Explanation:
+
+- Category is the label column
+- 2023, 2024, 2025 are data series columns
+- each row is a category
+
+For ScatterPlot, a common CSV format is:
+
+Country,GDPPerCapita,LifeExpectancy,PopulationMillions,Continent
+Ireland,100000,82,5.3,Europe
+Germany,53000,81,84,Europe
+India,2500,67,1400,Asia
+
+Explanation:
+
+- Country is the label
+- GDPPerCapita is x
+- LifeExpectancy is y
+- PopulationMillions can be used for bubble size
+- Continent can be used for grouping and color
+
+12. Common chart methods
+------------------------
+
+You will often use methods like these:
+
+.setTitle("...")
+.setXLabel("...")
+.setYLabel("...")
+.enableDefaultAnalyticalUI()
+.setAnimationDurationMs(...)
+.restartAnimation()
+
+These methods usually return the chart object, so they can be chained one after another.
+
+13. Why updateHover() is needed
+-------------------------------
+
+The line:
+
+chart.updateHover(mouseX, mouseY);
+
+allows the chart to know where the mouse is.
+Without this, hover effects and tooltips may not work correctly.
+
+14. Why handleMousePressed() is needed
+--------------------------------------
+
+The line:
+
+chart.handleMousePressed(mouseX, mouseY);
+
+passes mouse clicks into the chart.
+Without this, clicking legend items, bars, or points may not work.
+
+15. Why handleKeyPressed() is needed
+------------------------------------
+
+The line:
+
+chart.handleKeyPressed(key, keyCode);
+
+passes keyboard input into the chart.
+Without this, built-in shortcuts such as sorting, paging, palette switching, zooming, reset, and overlays may not work.
+
+16. Why ESC is handled specially
+--------------------------------
+
+Processing closes the sketch automatically when ESC is pressed.
+
+This code:
+
+if (keyCode == ESC) {
+  key = 0;
+}
+
+prevents that automatic close behavior so the chart can continue running.
+
+17. Typical controls in the library
+-----------------------------------
+
+The exact keys depend on the chart type and version, but typical controls include:
+
+Bar chart:
+- sort
+- Top-N toggle
+- page left/right
+- grouped/stacked mode
+- orientation switch
+- palette switch
+- dark/light mode
+- reset
+
+Scatter plot:
+- zoom in/out
+- pan with arrow keys
+- toggle average lines
+- toggle labels
+- toggle grid
+- toggle overlays
+- palette switch
+- dark/light mode
+- reset
+
+Line chart:
+- transpose or interpretation switch
+- page left/right
+- palette switch
+- overlays
+- average/reference lines
+- reset
+
+18. If the CSV file cannot be found
+-----------------------------------
+
+If you see an error like:
+
+myfile.csv not found
+
+then Processing cannot see your CSV file.
+
+Check:
+
+1. Is the file really inside the sketch folder or data subfolder?
+2. Is the filename spelled exactly the same?
+3. Did you use the correct path in loadTable(...)?
+4. Does the file have .csv at the end?
+
+19. If the library import fails
+-------------------------------
+
+If this fails:
+
+import com.ata.charts.*;
+
+then one of these is wrong:
+
+1. the library folder is not in Processing/libraries
+2. the folder structure is wrong
+3. the .jar file is missing
+4. the package name inside the library does not match com.ata.charts
+5. Processing was open before the library was copied in
+
+Try:
+
+- close Processing
+- re-check the folder structure
+- reopen Processing
+
+20. If the chart compiles but nothing appears
+---------------------------------------------
+
+Check these:
+
+1. Did the CSV actually load?
+2. Did you call chart.draw(...) in draw()?
+3. Did you use background(...) before drawing?
+4. Are the column names in your code exactly the same as in the CSV?
+5. Is your chart object actually created in setup()?
+
+21. How to measure FPS
+----------------------
+
+You can display FPS using Processing's frameRate value.
+
+Example:
+
+fill(0);
+text("FPS: " + nf(frameRate, 1, 2), 10, 20);
+
+This is useful for testing performance.
+
+22. Good beginner workflow
+--------------------------
+
+Use this workflow every time:
+
+1. create a sketch
+2. place the CSV in the sketch folder or data folder
+3. import the library
+4. load the CSV with loadTable(...)
+5. build the chart object in setup()
+6. draw the chart in draw()
+7. add hover, mouse, and keyboard handling
+8. test with a small CSV first
+9. only then move to bigger datasets
+
+23. Recommended first tests
+---------------------------
+
+Start with:
+
+- one BarChart example
+- one ScatterPlot example
+- one LineChart example
+
+Do not try to test every option immediately.
+First confirm that:
+- the library imports
+- the CSV loads
+- the chart appears
+- interaction works
+
+Then start changing:
+- title
+- axis labels
+- colors
+- palette
+- data columns
+- chart modes
+
+24. Final advice
+----------------
+
+If something goes wrong, isolate the issue:
+
+- first check the import
+- then check the CSV path
+- then check the column names
+- then check the chart class name
+- then check the draw() loop
+
+Most beginner problems with Processing libraries are caused by:
+- wrong folder placement
+- wrong file names
+- wrong CSV paths
+- wrong column names
+
+If those are correct, the chart usually works.
+
+End of guide.
